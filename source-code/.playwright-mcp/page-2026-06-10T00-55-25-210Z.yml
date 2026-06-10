@@ -1,0 +1,10 @@
+- generic [ref=e5]:
+  - generic [ref=e6]: 系统登录
+  - generic [ref=e7]:
+    - textbox [ref=e13]
+    - generic [ref=e19]:
+      - textbox [ref=e20]
+      - img "eye-invisible" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+    - button "登 录" [ref=e31] [cursor=pointer]:
+      - generic [ref=e32]: 登 录
