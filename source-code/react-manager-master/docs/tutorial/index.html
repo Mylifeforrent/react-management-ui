@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./assets/tutorial.css" />
+    <title>React 后台管理系统教程站</title>
+  </head>
+  <body>
+    <div class="tutorial-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span>React Manager</span>
+          <strong>渐进式教程</strong>
+        </div>
+        <label class="search-box">
+          <span>搜索章节</span>
+          <input id="searchInput" type="search" placeholder="路由 / 权限 / 订单..." />
+        </label>
+        <nav id="chapterNav" class="chapter-nav" aria-label="章节目录"></nav>
+      </aside>
+
+      <main class="content">
+        <header class="hero">
+          <div>
+            <span class="eyebrow">由浅入深 · 对照源码 · 可运行实验</span>
+            <h1>React 后台管理系统实战教学手册</h1>
+            <p>
+              按原课程资料的章节推进，从工程化与基础语法进入路由、接口、登录、工作台、业务 CRUD、RBAC、订单地图和最终工程优化。
+            </p>
+          </div>
+          <a class="hero-action" href="../../demos/chapter-02-engineering/index.html">开始第 2 章实验</a>
+        </header>
+
+        <article id="chapterContent" class="chapter-content"></article>
+      </main>
+    </div>
+
+    <script src="./assets/content.js"></script>
+    <script src="./assets/app.js"></script>
+  </body>
+</html>

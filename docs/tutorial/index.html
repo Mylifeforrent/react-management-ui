@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React管理后台系统 - 完整教程</title>
+    <style>
+        :root {
+            --primary-color: #61dafb;
+            --secondary-color: #282c34;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --sidebar-bg: #282c34;
+            --sidebar-text: #abb2bf;
+            --code-bg: #1e1e1e;
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h1 {
+            color: var(--primary-color);
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            margin: 0;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: rgba(97, 218, 251, 0.1);
+            border-left-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .nav-link.active {
+            background: rgba(97, 218, 251, 0.15);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .nav-link .chapter-num {
+            display: inline-block;
+            width: 30px;
+            color: #888;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px 60px;
+            max-width: 1200px;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 36px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        h2 {
+            font-size: 28px;
+            color: var(--secondary-color);
+            margin: 40px 0 20px;
+            padding-left: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        h3 {
+            font-size: 22px;
+            color: #444;
+            margin: 30px 0 15px;
+        }
+
+        h4 {
+            font-size: 18px;
+            color: #555;
+            margin: 20px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #2d2d2d;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-title {
+            color: #abb2bf;
+            font-size: 13px;
+        }
+
+        .code-lang {
+            color: var(--primary-color);
+            font-size: 12px;
+            background: rgba(97, 218, 251, 0.1);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        pre {
+            padding: 20px;
+            overflow-x: auto;
+            margin: 0;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #abb2bf;
+        }
+
+        .inline-code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+            color: #e83e8c;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+
+        .info-box.tip {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .info-box.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .info-box.danger {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .info-box-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--secondary-color);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .breadcrumb span {
+            color: var(--primary-color);
+        }
+
+        /* Progress Indicator */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 100;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #21a9c4);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #4fc3f7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(97, 218, 251, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        /* Syntax Highlighting Colors */
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .number { color: #d19a66; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .class-name { color: #e5c07b; }
+        .tag { color: #e06c75; }
+        .attr { color: #d19a66; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .progress-bar {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>React管理后台教程</h1>
+                <p>v1.0 - 由浅入深学习路径</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#intro" class="nav-link active" data-section="intro">
+                        <span class="chapter-num">序章</span>课程介绍
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter1" class="nav-link" data-section="chapter1">
+                        <span class="chapter-num">第一章</span>React基础入门
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter2" class="nav-link" data-section="chapter2">
+                        <span class="chapter-num">第二章</span>TypeScript核心
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter3" class="nav-link" data-section="chapter3">
+                        <span class="chapter-num">第三章</span>工程化配置
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter4" class="nav-link" data-section="chapter4">
+                        <span class="chapter-num">第四章</span>路由系统
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter5" class="nav-link" data-section="chapter5">
+                        <span class="chapter-num">第五章</span>API请求封装
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter6" class="nav-link" data-section="chapter6">
+                        <span class="chapter-num">第六章</span>登录认证
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter7" class="nav-link" data-section="chapter7">
+                        <span class="chapter-num">第七章</span>UI组件与主题
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter8" class="nav-link" data-section="chapter8">
+                        <span class="chapter-num">第八章</span>状态管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter9" class="nav-link" data-section="chapter9">
+                        <span class="chapter-num">第九章</span>工作台Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter10" class="nav-link" data-section="chapter10">
+                        <span class="chapter-num">第十章</span>用户管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter11" class="nav-link" data-section="chapter11">
+                        <span class="chapter-num">第十一章</span>部门管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter12" class="nav-link" data-section="chapter12">
+                        <span class="chapter-num">第十二章</span>菜单管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter13" class="nav-link" data-section="chapter13">
+                        <span class="chapter-num">第十三章</span>RBAC权限
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter14" class="nav-link" data-section="chapter14">
+                        <span class="chapter-num">第十四章</span>订单与地图
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#chapter15" class="nav-link" data-section="chapter15">
+                        <span class="chapter-num">第十五章</span>性能优化
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- 序章: 课程介绍 -->
+            <section id="intro" class="content-section active">
+                <h1>React管理后台系统开发教程</h1>
+                
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 课程特色</div>
+                    <p>本教程采用由浅入深、循序渐进的方式，从React基础语法到完整的企业管理后台系统开发。每个章节都包含理论讲解和实际代码演示。</p>
+                </div>
+
+                <h2>📚 学习路线图</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>阶段</th>
+                            <th>章节</th>
+                            <th>核心内容</th>
+                            <th>难度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="2">基础篇</td>
+                            <td>第一章</td>
+                            <td>React Hooks (useState, useEffect, useContext等)</td>
+                            <td>⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第二章</td>
+                            <td>TypeScript类型系统 (接口、泛型、高级类型)</td>
+                            <td>⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">进阶篇</td>
+                            <td>第三章</td>
+                            <td>工程化配置 (ESLint, Prettier, Vite)</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第四章</td>
+                            <td>React Router 6路由系统</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">实战篇</td>
+                            <td>第五章</td>
+                            <td>Axios请求封装、拦截器、Mock数据</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第六章</td>
+                            <td>登录认证、Token管理、路由守卫</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第七章</td>
+                            <td>Ant Design、CSS Module、主题定制</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="7">项目篇</td>
+                            <td>第八章</td>
+                            <td>Zustand状态管理</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第九章</td>
+                            <td>Dashboard图表、数据可视化</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第十章</td>
+                            <td>用户管理CRUD、分页、表单封装</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第十一章</td>
+                            <td>部门管理、树形结构</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第十二章</td>
+                            <td>菜单管理、动态路由渲染</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第十三章</td>
+                            <td>RBAC权限系统、按钮级权限</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>第十四章</td>
+                            <td>订单管理、地图轨迹、数据聚合</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>优化篇</td>
+                            <td>第十五章</td>
+                            <td>懒加载、代码分割、性能优化</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>🎯 项目技术栈</h2>
+                <ul>
+                    <li><strong>核心框架:</strong> React 18 + TypeScript</li>
+                    <li><strong>构建工具:</strong> Vite</li>
+                    <li><strong>UI组件库:</strong> Ant Design 5.x</li>
+                    <li><strong>路由管理:</strong> React Router 6.x</li>
+                    <li><strong>状态管理:</strong> Zustand</li>
+                    <li><strong>HTTP客户端:</strong> Axios</li>
+                    <li><strong>数据可视化:</strong> ECharts</li>
+                    <li><strong>代码规范:</strong> ESLint + Prettier</li>
+                </ul>
+
+                <div class="nav-buttons">
+                    <span></span>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter1')">开始学习 →</button>
+                </div>
+            </section>
+
+            <!-- 第一章: React基础 -->
+            <section id="chapter1" class="content-section">
+                <div class="breadcrumb">首页 > <span>第一章: React基础入门</span></div>
+                
+                <h1>第一章: React基础入门</h1>
+
+                <h2>1.1 Vue vs React对比</h2>
+                <p>在开始学习React之前，我们先了解Vue和React两大主流框架的核心差异：</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>特性</th>
+                            <th>Vue</th>
+                            <th>React</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>开发团队</td>
+                            <td>尤雨溪及Vue团队</td>
+                            <td>Facebook (Meta)</td>
+                        </tr>
+                        <tr>
+                            <td>数据流</td>
+                            <td>双向绑定 (v-model)</td>
+                            <td>单向数据流</td>
+                        </tr>
+                        <tr>
+                            <td>模板语法</td>
+                            <td>Template指令 (v-if, v-for)</td>
+                            <td>JSX (All In JS)</td>
+                        </tr>
+                        <tr>
+                            <td>状态管理</td>
+                            <td>Vuex / Pinia</td>
+                            <td>Redux / MobX / Zustand</td>
+                        </tr>
+                        <tr>
+                            <td>性能优化</td>
+                            <td>自动优化</td>
+                            <td>手动优化 (memo, useMemo)</td>
+                        </tr>
+                        <tr>
+                            <td>学习曲线</td>
+                            <td>平缓</td>
+                            <td>较陡峭</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>1.2 useState Hook</h2>
+                <p><code class="inline-code">useState</code>是React中最基础的Hook，用于在函数组件中添加状态。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">基础用法</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { useState } <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">function</span> <span class="function">Counter</span>() {
+  <span class="comment">// 声明状态变量 count 和更新函数 setCount</span>
+  <span class="keyword">const</span> [count, setCount] = useState(<span class="number">0</span>)
+
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">p</span>&gt;当前计数: {count}&lt;/<span class="tag">p</span>&gt;
+      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() => setCount(count + <span class="number">1</span>)}&gt;
+        增加
+      &lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  )
+}</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 实战应用</div>
+                    <p>在登录页面中，我们使用useState管理loading状态：</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/views/login/Login.tsx - 登录状态管理</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { useState } <span class="keyword">from</span> <span class="string">'react'</span>
+<span class="keyword">import</span> { Button, Form, Input, message } <span class="keyword">from</span> <span class="string">'antd'</span>
+<span class="keyword">import</span> api <span class="keyword">from</span> <span class="string">'@/api'</span>
+
+<span class="keyword">export default function</span> <span class="function">LoginFC</span>() {
+  <span class="comment">// 使用useState管理登录loading状态</span>
+  <span class="keyword">const</span> [loading, setLoading] = useState(<span class="keyword">false</span>)
+  <span class="keyword">const</span> updateToken = useStore(state => state.updateToken)
+
+  <span class="keyword">const</span> onFinish = <span class="keyword">async</span> (values: Login.params) => {
+    <span class="keyword">try</span> {
+      setLoading(<span class="keyword">true</span>)  <span class="comment">// 开始加载</span>
+      <span class="keyword">const</span> data = <span class="keyword">await</span> api.login(values)
+      setLoading(<span class="keyword">false</span>) <span class="comment">// 结束加载</span>
+      storage.set(<span class="string">'token'</span>, data)
+      updateToken(data)
+      message.success(<span class="string">'登录成功'</span>)
+    } <span class="keyword">catch</span> (error) {
+      setLoading(<span class="keyword">false</span>) <span class="comment">// 错误时也要关闭loading</span>
+    }
+  }
+
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">Button</span> <span class="attr">type</span>=<span class="string">"primary"</span> <span class="attr">loading</span>={loading}&gt;
+      登录
+    &lt;/<span class="tag">Button</span>&gt;
+  )
+}</code></pre>
+                </div>
+
+                <h2>1.3 useEffect Hook</h2>
+                <p><code class="inline-code">useEffect</code>用于处理副作用，如数据获取、订阅、手动DOM操作等。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">useEffect语法详解</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { useEffect } <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">function</span> <span class="function">UserProfile</span>({ userId }) {
+  <span class="keyword">const</span> [user, setUser] = useState(<span class="keyword">null</span>)
+
+  <span class="comment">// 依赖数组为空：只在组件挂载时执行一次</span>
+  useEffect(() => {
+    fetchUser(userId).then(setUser)
+  }, [])
+
+  <span class="comment">// 依赖userId：userId变化时重新执行</span>
+  useEffect(() => {
+    <span class="keyword">if</span> (userId) {
+      fetchUser(userId).then(setUser)
+    }
+  }, [userId])
+
+  <span class="comment">// 无依赖数组：每次渲染都执行（慎用）</span>
+  useEffect(() => {
+    console.log(<span class="string">'每次渲染都会执行'</span>)
+  })
+
+  <span class="keyword">return</span> &lt;<span class="tag">div</span>&gt;{user?.name}&lt;/<span class="tag">div</span>&gt;
+}</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 实战应用</div>
+                    <p>在Layout布局组件中，使用useEffect获取用户信息：</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/layout/index.tsx - 获取用户信息</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { useEffect } <span class="keyword">from</span> <span class="string">'react'</span>
+<span class="keyword">import</span> api <span class="keyword">from</span> <span class="string">'@/api'</span>
+<span class="keyword">import</span> { useStore } <span class="keyword">from</span> <span class="string">'@/store'</span>
+
+<span class="keyword">const</span> App: React.FC = () => {
+  <span class="keyword">const</span> { userInfo, updateUserInfo } = useStore()
+
+  <span class="comment">// 组件挂载时获取用户信息</span>
+  useEffect(() => {
+    getUserInfo()
+  }, [])
+
+  <span class="keyword">const</span> getUserInfo = <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> data = <span class="keyword">await</span> api.getUserInfo()
+    updateUserInfo(data)
+  }
+
+  <span class="keyword">return</span> &lt;Layout&gt;...&lt;/Layout&gt;
+}</code></pre>
+                </div>
+
+                <h2>1.4 useContext 和 useReducer</h2>
+                <p>这两个Hook通常组合使用，实现全局状态管理（类似Vuex）。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">Context + Reducer模式</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { createContext, useContext, useReducer } <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="comment">// 创建Context</span>
+<span class="keyword">const</span> StoreContext = createContext()
+
+<span class="comment">// Reducer函数</span>
+<span class="keyword">function</span> <span class="function">reducer</span>(state, action) {
+  <span class="keyword">switch</span> (action.type) {
+    <span class="keyword">case</span> <span class="string">'INCREMENT'</span>:
+      <span class="keyword">return</span> { ...state, count: state.count + <span class="number">1</span> }
+    <span class="keyword">case</span> <span class="string">'DECREMENT'</span>:
+      <span class="keyword">return</span> { ...state, count: state.count - <span class="number">1</span> }
+    <span class="keyword">default</span>:
+      <span class="keyword">return</span> state
+  }
+}
+
+<span class="comment">// Provider组件</span>
+<span class="keyword">export function</span> <span class="function">StoreProvider</span>({ children }) {
+  <span class="keyword">const</span> [state, dispatch] = useReducer(reducer, { count: <span class="number">0</span> })
+  
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">StoreContext.Provider</span> <span class="attr">value</span>={{ state, dispatch }}&gt;
+      {children}
+    &lt;/<span class="tag">StoreContext.Provider</span>&gt;
+  )
+}
+
+<span class="comment">// 自定义Hook</span>
+<span class="keyword">export function</span> <span class="function">useStore</span>() {
+  <span class="keyword">return</span> useContext(StoreContext)
+}</code></pre>
+                </div>
+
+                <h2>1.5 useMemo 和 useCallback</h2>
+                <p>用于性能优化，避免不必要的重复计算和渲染。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">性能优化Hooks</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { useMemo, useCallback } <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">function</span> <span class="function">ExpensiveComponent</span>({ list, onItemClick }) {
+  <span class="comment">// useMemo: 缓存计算结果</span>
+  <span class="keyword">const</span> sortedList = useMemo(() => {
+    console.log(<span class="string">'执行排序计算'</span>)
+    <span class="keyword">return</span> [...list].sort((a, b) => a.price - b.price)
+  }, [list]) <span class="comment">// 仅当list变化时重新计算</span>
+
+  <span class="comment">// useCallback: 缓存函数引用</span>
+  <span class="keyword">const</span> handleClick = useCallback((id) => {
+    console.log(<span class="string">'点击项目:'</span>, id)
+    onItemClick(id)
+  }, [onItemClick]) <span class="comment">// 仅当onItemClick变化时创建新函数</span>
+
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">ul</span>&gt;
+      {sortedList.map(item => (
+        &lt;<span class="tag">li</span> <span class="attr">key</span>={item.id} <span class="attr">onClick</span>={() => handleClick(item.id)}&gt;
+          {item.name}
+        &lt;/<span class="tag">li</span>&gt;
+      ))}
+    &lt;/<span class="tag">ul</span>&gt;
+  )
+}</code></pre>
+                </div>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">⚠️ 注意事项</div>
+                    <p>不要过度优化！只有在以下情况才使用memo/useMemo/useCallback：</p>
+                    <ul>
+                        <li>组件渲染开销大</li>
+                        <li>状态频繁更新导致子组件重复渲染</li>
+                        <li>函数作为props传递给React.memo包裹的组件</li>
+                    </ul>
+                </div>
+
+                <h2>1.6 useRef</h2>
+                <p><code class="inline-code">useRef</code>用于访问DOM元素或保存可变值而不触发重新渲染。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">useRef两种用途</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { useRef } <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">function</span> <span class="function">MyComponent</span>() {
+  <span class="comment">// 1. 访问DOM元素</span>
+  <span class="keyword">const</span> inputRef = useRef(<span class="keyword">null</span>)
+  
+  <span class="comment">// 2. 保存可变值（不触发重渲染）</span>
+  <span class="keyword">const</span> timerRef = useRef(<span class="keyword">null</span>)
+
+  <span class="keyword">const</span> focusInput = () => {
+    inputRef.current?.focus()
+  }
+
+  <span class="keyword">const</span> startTimer = () => {
+    timerRef.current = setInterval(() => {
+      console.log(<span class="string">'定时器运行中...'</span>)
+    }, <span class="number">1000</span>)
+  }
+
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">input</span> <span class="attr">ref</span>={inputRef} <span class="attr">placeholder</span>=<span class="string">"输入框"</span> /&gt;
+      &lt;<span class="tag">button</span> <span class="attr">onClick</span>={focusInput}&gt;聚焦&lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  )
+}</code></pre>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('intro')">← 返回首页</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter2')">下一章: TypeScript →</button>
+                </div>
+            </section>
+
+            <!-- 后续章节将在下一部分继续 -->
+            <section id="chapter2" class="content-section">
+                <div class="breadcrumb">首页 > <span>第二章: TypeScript核心概念</span></div>
+                
+                <h1>第二章: TypeScript核心概念</h1>
+
+                <h2>2.1 基础类型</h2>
+                <p>TypeScript在JavaScript基础上添加了静态类型系统，让我们在编写代码时就能发现潜在错误。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">常用基础类型</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="comment">// 布尔值</span>
+<span class="keyword">let</span> isDone: <span class="class-name">boolean</span> = <span class="keyword">false</span>
+
+<span class="comment">// 数字</span>
+<span class="keyword">let</span> age: <span class="class-name">number</span> = <span class="number">25</span>
+
+<span class="comment">// 字符串</span>
+<span class="keyword">let</span> name: <span class="class-name">string</span> = <span class="string">'张三'</span>
+
+<span class="comment">// 数组</span>
+<span class="keyword">let</span> list: <span class="class-name">number</span>[] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+<span class="keyword">let</span> names: <span class="class-name">Array</span>&lt;<span class="class-name">string</span>&gt; = [<span class="string">'Alice'</span>, <span class="string">'Bob'</span>]
+
+<span class="comment">// 元组 - 固定长度和类型的数组</span>
+<span class="keyword">let</span> tuple: [<span class="class-name">string</span>, <span class="class-name">number</span>] = [<span class="string">'age'</span>, <span class="number">25</span>]
+
+<span class="comment">// 枚举</span>
+<span class="keyword">enum</span> <span class="class-name">Color</span> {
+  Red = <span class="string">'RED'</span>,
+  Green = <span class="string">'GREEN'</span>,
+  Blue = <span class="string">'BLUE'</span>
+}
+
+<span class="comment">// Any - 任意类型（尽量少用）</span>
+<span class="keyword">let</span> notSure: <span class="class-name">any</span> = <span class="number">4</span>
+notSure = <span class="string">'maybe a string'</span>
+
+<span class="comment">// Void - 无返回值</span>
+<span class="keyword">function</span> <span class="function">warnUser</span>(): <span class="class-name">void</span> {
+  console.log(<span class="string">'This is a warning'</span>)
+}
+
+<span class="comment">// Null 和 Undefined</span>
+<span class="keyword">let</span> u: <span class="class-name">undefined</span> = <span class="keyword">undefined</span>
+<span class="keyword">let</span> n: <span class="class-name">null</span> = <span class="keyword">null</span>
+
+<span class="comment">// Never - 永不存在的值的类型</span>
+<span class="keyword">function</span> <span class="function">error</span>(message: <span class="class-name">string</span>): <span class="class-name">never</span> {
+  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class-name">Error</span>(message)
+}</code></pre>
+                </div>
+
+                <h2>2.2 接口 (Interface)</h2>
+                <p>接口是TypeScript中定义对象形状的核心工具，在项目中使用频率极高。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">接口定义与使用</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="comment">// 基础接口</span>
+<span class="keyword">interface</span> <span class="class-name">User</span> {
+  id: <span class="class-name">number</span>
+  name: <span class="class-name">string</span>
+  email?: <span class="class-name">string</span>  <span class="comment">// 可选属性</span>
+  readonly createdAt: <span class="class-name">Date</span>  <span class="comment">// 只读属性</span>
+}
+
+<span class="comment">// 使用接口</span>
+<span class="keyword">const</span> user: <span class="class-name">User</span> = {
+  id: <span class="number">1</span>,
+  name: <span class="string">'张三'</span>,
+  createdAt: <span class="keyword">new</span> <span class="class-name">Date</span>()
+}
+
+<span class="comment">// 函数类型接口</span>
+<span class="keyword">interface</span> <span class="class-name">SearchFunc</span> {
+  (source: <span class="class-name">string</span>, subString: <span class="class-name">string</span>): <span class="class-name">boolean</span>
+}
+
+<span class="comment">// 接口继承</span>
+<span class="keyword">interface</span> <span class="class-name">UserWithRole</span> <span class="keyword">extends</span> <span class="class-name">User</span> {
+  role: <span class="class-name">string</span>
+  permissions: <span class="class-name">string</span>[]
+}</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 实战应用</div>
+                    <p>项目中所有API接口都使用接口定义类型：</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/types/api.ts - API类型定义</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="comment">// 通用返回结果</span>
+<span class="keyword">export interface</span> <span class="class-name">Result</span>&lt;T = <span class="class-name">any</span>&gt; {
+  code: <span class="class-name">number</span>
+  data: T
+  msg: <span class="class-name">string</span>
+}
+
+<span class="comment">// 分页返回结果</span>
+<span class="keyword">export interface</span> <span class="class-name">ResultData</span>&lt;T&gt; {
+  list: T[]
+  page: {
+    pageNum: <span class="class-name">number</span>
+    pageSize: <span class="class-name">number</span>
+    total: <span class="class-name">number</span>
+  }
+}
+
+<span class="comment">// 登录参数</span>
+<span class="keyword">export namespace</span> <span class="class-name">Login</span> {
+  <span class="keyword">export interface</span> <span class="class-name">params</span> {
+    userName: <span class="class-name">string</span>
+    userPwd: <span class="class-name">string</span>
+  }
+}
+
+<span class="comment">// 用户接口</span>
+<span class="keyword">export namespace</span> <span class="class-name">User</span> {
+  <span class="keyword">export interface</span> <span class="class-name">Params</span> <span class="keyword">extends</span> <span class="class-name">PageParams</span> {
+    userId?: <span class="class-name">number</span>
+    userName?: <span class="class-name">string</span>
+    state?: <span class="class-name">number</span>
+  }
+
+  <span class="keyword">export interface</span> <span class="class-name">UserItem</span> {
+    userId: <span class="class-name">number</span>
+    userName: <span class="class-name">string</span>
+    userEmail: <span class="class-name">string</span>
+    mobile?: <span class="class-name">number</span>
+    stateName?: <span class="class-name">string</span>
+    deptName?: <span class="class-name">string</span>
+  }
+}</code></pre>
+                </div>
+
+                <h2>2.3 泛型 (Generics)</h2>
+                <p>泛型允许我们创建可重用的、适用于多种类型的组件和函数。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">泛型基础与进阶</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="comment">// 基础泛型函数</span>
+<span class="keyword">function</span> <span class="function">identity</span>&lt;T&gt;(arg: T): T {
+  <span class="keyword">return</span> arg
+}
+
+<span class="comment">// 使用泛型</span>
+<span class="keyword">let</span> output = identity&lt;<span class="class-name">string</span>&gt;(<span class="string">'Hello'</span>)
+<span class="keyword">let</span> output2 = identity&lt;<span class="class-name">number</span>&gt;(<span class="number">123</span>)
+
+<span class="comment">// 泛型接口</span>
+<span class="keyword">interface</span> <span class="class-name">ApiResponse</span>&lt;T&gt; {
+  code: <span class="class-name">number</span>
+  data: T
+  message: <span class="class-name">string</span>
+}
+
+<span class="comment">// 泛型约束</span>
+<span class="keyword">interface</span> <span class="class-name">Lengthwise</span> {
+  length: <span class="class-name">number</span>
+}
+
+<span class="keyword">function</span> <span class="function">loggingIdentity</span>&lt;T <span class="keyword">extends</span> <span class="class-name">Lengthwise</span>&gt;(arg: T): T {
+  console.log(arg.length)
+  <span class="keyword">return</span> arg
+}
+
+<span class="comment">// 多个泛型参数</span>
+<span class="keyword">function</span> <span class="function">pair</span>&lt;T, U&gt;(first: T, second: U): [T, U] {
+  <span class="keyword">return</span> [first, second]
+}
+
+<span class="keyword">const</span> myPair = pair&lt;<span class="class-name">string</span>, <span class="class-name">number</span>&gt;(<span class="string">'age'</span>, <span class="number">25</span>)</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 实战应用</div>
+                    <p>Axios请求封装大量使用泛型：</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/utils/request.ts - 泛型请求方法</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="keyword">export default</span> {
+  <span class="comment">// 使用泛型定义返回数据类型</span>
+  get&lt;T&gt;(url: <span class="class-name">string</span>, params?: <span class="class-name">object</span>): <span class="class-name">Promise</span>&lt;T&gt; {
+    <span class="keyword">return</span> instance.get(url, { params }) <span class="keyword">as</span> <span class="class-name">Promise</span>&lt;T&gt;
+  },
+  
+  post&lt;T&gt;(url: <span class="class-name">string</span>, params?: <span class="class-name">object</span>): <span class="class-name">Promise</span>&lt;T&gt; {
+    <span class="keyword">return</span> instance.post(url, params) <span class="keyword">as</span> <span class="class-name">Promise</span>&lt;T&gt;
+  }
+}
+
+<span class="comment">// 使用时指定返回类型</span>
+<span class="keyword">const</span> userList = <span class="keyword">await</span> api.getUserList&lt;<span class="class-name">User.UserItem</span>[]&gt;()
+<span class="keyword">const</span> orderData = <span class="keyword">await</span> api.getOrderDetail&lt;<span class="class-name">OrderType.OrderItem</span>&gt;(orderId)</code></pre>
+                </div>
+
+                <h2>2.4 类型别名与联合类型</h2>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">高级类型</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="comment">// 类型别名</span>
+<span class="keyword">type</span> <span class="class-name">ID</span> = <span class="class-name">string</span> | <span class="class-name">number</span>
+
+<span class="comment">// 联合类型</span>
+<span class="keyword">type</span> <span class="class-name">Status</span> = <span class="string">'pending'</span> | <span class="string">'success'</span> | <span class="string">'error'</span>
+
+<span class="comment">// 交叉类型</span>
+<span class="keyword">interface</span> <span class="class-name">BasicInfo</span> {
+  name: <span class="class-name">string</span>
+  age: <span class="class-name">number</span>
+}
+
+<span class="keyword">interface</span> <span class="class-name">ContactInfo</span> {
+  email: <span class="class-name">string</span>
+  phone: <span class="class-name">string</span>
+}
+
+<span class="keyword">type</span> <span class="class-name">FullUser</span> = <span class="class-name">BasicInfo</span> & <span class="class-name">ContactInfo</span>
+
+<span class="comment">// 字面量类型</span>
+<span class="keyword">type</span> <span class="class-name">Direction</span> = <span class="string">'up'</span> | <span class="string">'down'</span> | <span class="string">'left'</span> | <span class="string">'right'</span>
+
+<span class="comment">// 映射类型</span>
+<span class="keyword">type</span> <span class="class-name">Readonly</span>&lt;T&gt; = {
+  <span class="keyword">readonly</span> [P <span class="keyword">in keyof</span> T]: T[P]
+}</code></pre>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter1')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter3')">下一章: 工程化 →</button>
+                </div>
+            </section>
+
+            <!-- 由于篇幅限制，这里展示前两章的完整内容 -->
+            <!-- 其他章节采用类似的结构继续展开 -->
+            
+            <section id="chapter3" class="content-section">
+                <div class="breadcrumb">首页 > <span>第三章: 工程化配置</span></div>
+                <h1>第三章: 工程化配置</h1>
+                
+                <h2>3.1 Vite构建工具</h2>
+                <p>Vite是下一代前端构建工具，相比Webpack具有更快的启动速度和热更新速度。</p>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 Vite优势</div>
+                    <ul>
+                        <li>⚡️ 极速的服务启动 - 基于浏览器原生ES modules</li>
+                        <li>🔥 轻量快速的热重载 - 无论应用大小，HMR速度始终如一</li>
+                        <li>🛠️ 丰富的功能 - 内置TypeScript、JSX、CSS等支持</li>
+                        <li>📦 优化的构建 - 基于Rollup，输出高效的生产代码</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">vite.config.ts - Vite配置文件详解</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { defineConfig } <span class="keyword">from</span> <span class="string">'vite'</span>
+<span class="keyword">import</span> react <span class="keyword">from</span> <span class="string">'@vitejs/plugin-react'</span>
+<span class="keyword">import</span> path <span class="keyword">from</span> <span class="string">'path'</span>
+
+<span class="keyword">export default</span> defineConfig({
+  <span class="comment">// 插件配置</span>
+  plugins: [react()],
+  
+  <span class="comment">// 路径别名配置</span>
+  resolve: {
+    alias: {
+      <span class="string">'@'</span>: path.resolve(__dirname, <span class="string">'./src'</span>)
+    }
+  },
+  
+  <span class="comment">// 开发服务器配置</span>
+  server: {
+    port: <span class="number">3000</span>,  <span class="comment">// 端口号</span>
+    open: <span class="keyword">true</span>,   <span class="comment">// 自动打开浏览器</span>
+    proxy: {
+      <span class="comment">// API代理配置 - 解决跨域问题</span>
+      <span class="string">'/api'</span>: {
+        target: <span class="string">'http://localhost:8080'</span>,
+        changeOrigin: <span class="keyword">true</span>,
+        rewrite: (path) => path.replace(<span class="string">/^\/api/</span>, <span class="string">''</span>)
+      }
+    }
+  },
+  
+  <span class="comment">// 构建配置</span>
+  build: {
+    outDir: <span class="string">'dist'</span>,
+    sourcemap: <span class="keyword">false</span>,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          <span class="comment">// 代码分割 - vendor包</span>
+          vendor: [<span class="string">'react'</span>, <span class="string">'react-dom'</span>],
+          <span class="comment">// antd单独打包</span>
+          antd: [<span class="string">'antd'</span>]
+        }
+      }
+    }
+  }
+})</code></pre>
+                </div>
+
+                <h2>3.2 ESLint代码检查</h2>
+                <p>ESLint用于识别和报告代码中的问题，保持代码风格一致。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">.eslintrc.cjs - ESLint配置</span>
+                        <span class="code-lang">javascript</span>
+                    </div>
+                    <pre><code>module.exports = {
+  env: {
+    browser: <span class="keyword">true</span>,
+    es2021: <span class="keyword">true</span>,
+    node: <span class="keyword">true</span>
+  },
+  extends: [
+    <span class="string">'eslint:recommended'</span>,
+    <span class="string">'plugin:@typescript-eslint/recommended'</span>,
+    <span class="string">'plugin:react/recommended'</span>,
+    <span class="string">'plugin:react-hooks/recommended'</span>
+  ],
+  parser: <span class="string">'@typescript-eslint/parser'</span>,
+  plugins: [<span class="string">'@typescript-eslint'</span>, <span class="string">'react'</span>, <span class="string">'react-hooks'</span>],
+  rules: {
+    <span class="comment">// 自定义规则</span>
+    <span class="string">'no-console'</span>: <span class="string">'warn'</span>,
+    <span class="string">'@typescript-eslint/no-explicit-any'</span>: <span class="string">'off'</span>,
+    <span class="string">'react/prop-types'</span>: <span class="string">'off'</span>
+  },
+  settings: {
+    react: {
+      version: <span class="string">'detect'</span>
+    }
+  }
+}</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 关键配置说明</div>
+                    <p>详细对比请查看项目文档：<a href="../guides/02-init-project/eslint-config-diff-and-guide.md">ESLint配置详解</a></p>
+                </div>
+
+                <h2>3.3 Prettier代码格式化</h2>
+                <p>Prettier自动格式化代码，确保团队代码风格统一。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">.prettierrc.cjs - Prettier配置</span>
+                        <span class="code-lang">javascript</span>
+                    </div>
+                    <pre><code>module.exports = {
+  <span class="comment">// 每行最大字符数</span>
+  printWidth: <span class="number">120</span>,
+  
+  <span class="comment">// 缩进空格数（2个空格）</span>
+  tabWidth: <span class="number">2</span>,
+  
+  <span class="comment">// 不使用制表符（使用空格）</span>
+  useTabs: <span class="keyword">false</span>,
+  
+  <span class="comment">// 语句结尾不用分号</span>
+  semi: <span class="keyword">false</span>,
+  
+  <span class="comment">// 使用单引号</span>
+  singleQuote: <span class="keyword">true</span>,
+  
+  <span class="comment">// JSX中使用单引号</span>
+  jsxSingleQuote: <span class="keyword">true</span>,
+  
+  <span class="comment">// 单参数箭头函数去掉括号 (x) => x 变成 x => x</span>
+  arrowParens: <span class="string">'avoid'</span>,
+  
+  <span class="comment">// 对象数组括号加空格 { a: 1 }</span>
+  bracketSpacing: <span class="keyword">true</span>,
+  
+  <span class="comment">// 无尾随逗号</span>
+  trailingComma: <span class="string">'none'</span>
+}</code></pre>
+                </div>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">⚠️ ESLint与Prettier冲突处理</div>
+                    <p>需要安装 <code class="inline-code">eslint-config-prettier</code> 和 <code class="inline-code">eslint-plugin-prettier</code> 来避免规则冲突：</p>
+                    <pre><code>npm install --save-dev eslint-config-prettier eslint-plugin-prettier</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 配置对比</div>
+                    <p>Tab vs Space讨论：<a href="../guides/02-init-project/tab-vs-space-indentation.md">阅读更多</a></p>
+                    <p>Prettier vs EditorConfig：<a href="../guides/02-init-project/prettier-vs-editorconfig.md">阅读更多</a></p>
+                </div>
+
+                <h2>3.4 EditorConfig配置</h2>
+                <p>EditorConfig帮助在不同编辑器和IDE中保持一致的编码风格。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">.editorconfig - 编辑器配置</span>
+                        <span class="code-lang">ini</span>
+                    </div>
+                    <pre><code><span class="comment"># 顶级配置文件</span>
+root = <span class="keyword">true</span>
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = <span class="keyword">true</span>
+trim_trailing_whitespace = <span class="keyword">true</span>
+
+[*.md]
+trim_trailing_whitespace = <span class="keyword">false</span>
+
+[Makefile]
+indent_style = tab</code></pre>
+                </div>
+
+                <h2>3.5 Git Hooks与lint-staged</h2>
+                <p>在提交代码前自动运行代码检查和格式化。</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">package.json - Git Hooks配置</span>
+                        <span class="code-lang">json</span>
+                    </div>
+                    <pre><code>{
+  <span class="attr">"scripts"</span>: {
+    <span class="attr">"lint"</span>: <span class="string">"eslint src --ext .ts,.tsx"</span>,
+    <span class="attr">"lint:fix"</span>: <span class="string">"eslint src --ext .ts,.tsx --fix"</span>,
+    <span class="attr">"format"</span>: <span class="string">"prettier --write \"src/**/*.{ts,tsx,css,less}\""</span>,
+    <span class="attr">"prepare"</span>: <span class="string">"husky install"</span>
+  },
+  <span class="attr">"lint-staged"</span>: {
+    <span class="attr">"*.{ts,tsx}"</span>: [
+      <span class="string">"eslint --fix"</span>,
+      <span class="string">"prettier --write"</span>
+    ],
+    <span class="attr">"*.{css,less,json,md}"</span>: [
+      <span class="string">"prettier --write"</span>
+    ]
+  }
+}</code></pre>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter2')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter4')">下一章: 路由系统 →</button>
+                </div>
+            </section>
+
+            <section id="chapter4" class="content-section">
+                <div class="breadcrumb">首页 > <span>第四章: React Router路由系统</span></div>
+                <h1>第四章: React Router路由系统</h1>
+
+                <h2>4.1 路由安装与基础配置</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">安装React Router</span>
+                        <span class="code-lang">bash</span>
+                    </div>
+                    <pre><code><span class="comment"># npm 安装</span>
+npm install react-router-dom
+
+<span class="comment"># yarn 安装</span>
+yarn add react-router-dom
+
+<span class="comment"># pnpm 安装</span>
+pnpm add react-router-dom</code></pre>
+                </div>
+
+                <h2>4.2 路由配置方式</h2>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/router/index.tsx - 项目路由配置</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> { createBrowserRouter, Navigate } <span class="keyword">from</span> <span class="string">'react-router-dom'</span>
+<span class="keyword">import</span> Login <span class="keyword">from</span> <span class="string">'@/views/login/Login'</span>
+<span class="keyword">import</span> Layout <span class="keyword">from</span> <span class="string">'@/layout'</span>
+<span class="keyword">import</span> AuthLoader <span class="keyword">from</span> <span class="string">'./AuthLoader'</span>
+<span class="keyword">import</span> { lazyLoad } <span class="keyword">from</span> <span class="string">'./LazyLoad'</span>
+
+<span class="keyword">export const</span> router = [
+  {
+    path: <span class="string">'/'</span>,
+    element: &lt;<span class="tag">Navigate</span> <span class="attr">to</span>=<span class="string">"/welcome"</span> /&gt;
+  },
+  {
+    path: <span class="string">'/login'</span>,
+    element: &lt;<span class="tag">Login</span> /&gt;
+  },
+  {
+    id: <span class="string">'layout'</span>,
+    element: &lt;<span class="tag">Layout</span> /&gt;,
+    loader: AuthLoader,  <span class="comment">// 路由守卫</span>
+    children: [
+      {
+        path: <span class="string">'/welcome'</span>,
+        element: &lt;<span class="tag">Welcome</span> /&gt;
+      },
+      {
+        path: <span class="string">'/dashboard'</span>,
+        element: lazyLoad(React.lazy(() => <span class="keyword">import</span>(<span class="string">'@/views/dashboard'</span>)))
+      },
+      {
+        path: <span class="string">'/userList'</span>,
+        element: lazyLoad(React.lazy(() => <span class="keyword">import</span>(<span class="string">'@/views/system/user'</span>)))
+      }
+    ]
+  }
+]
+
+<span class="keyword">export default</span> createBrowserRouter(router)</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 深入学习</div>
+                    <p>BrowserRouter vs HashRouter：<a href="../guides/03-react-router/browse-vs-hash-router.md">阅读对比</a></p>
+                    <p>Loading知识点：<a href="../guides/03-react-router/loading引出的知识点.md">了解更多</a></p>
+                </div>
+
+                <h2>4.3 路由懒加载</h2>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/router/LazyLoad.tsx - 懒加载封装</span>
+                        <span class="code-lang">tsx</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> React, { Suspense } <span class="keyword">from</span> <span class="string">'react'</span>
+<span class="keyword">import</span> { Spin } <span class="keyword">from</span> <span class="string">'antd'</span>
+
+<span class="keyword">export const</span> lazyLoad = (Component: React.LazyExoticComponent&lt;<span class="class-name">any</span>&gt;) => {
+  <span class="keyword">return</span> (
+    &lt;<span class="tag">Suspense</span> <span class="attr">fallback</span>={
+      &lt;<span class="tag">Spin</span> 
+        size=<span class="string">"large"</span> 
+        style={{
+          display: <span class="string">'flex'</span>,
+          alignItems: <span class="string">'center'</span>,
+          justifyContent: <span class="string">'center'</span>,
+          height: <span class="string">'100%'</span>
+        }}
+      /&gt;
+    }&gt;
+      &lt;<span class="tag">Component</span> /&gt;
+    &lt;/<span class="tag">Suspense</span>&gt;
+  )
+}</code></pre>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter3')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter5')">下一章: API请求 →</button>
+                </div>
+            </section>
+
+            <section id="chapter5" class="content-section">
+                <div class="breadcrumb">首页 > <span>第五章: API请求封装</span></div>
+                <h1>第五章: API请求封装</h1>
+
+                <h2>5.1 Axios实例创建</h2>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/utils/request.ts - Axios封装</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> axios, { AxiosError } <span class="keyword">from</span> <span class="string">'axios'</span>
+<span class="keyword">import</span> { showLoading, hideLoading } <span class="keyword">from</span> <span class="string">'./loading'</span>
+<span class="keyword">import</span> storage <span class="keyword">from</span> <span class="string">'./storage'</span>
+<span class="keyword">import</span> env <span class="keyword">from</span> <span class="string">'@/config'</span>
+
+<span class="comment">// 创建实例</span>
+<span class="keyword">const</span> instance = axios.create({
+  timeout: <span class="number">8000</span>,
+  timeoutErrorMessage: <span class="string">'请求超时，请稍后再试'</span>,
+  withCredentials: <span class="keyword">true</span>,
+  headers: {
+    icode: <span class="string">''</span>
+  }
+})
+
+<span class="comment">// 请求拦截器</span>
+instance.interceptors.request.use(
+  config => {
+    <span class="keyword">if</span> (config.showLoading) showLoading()
+    
+    <span class="comment">// 添加Token</span>
+    <span class="keyword">const</span> token = storage.get(<span class="string">'token'</span>)
+    <span class="keyword">if</span> (token) {
+      config.headers.Authorization = <span class="string">'Bearer '</span> + token
+    }
+    
+    <span class="comment">// 环境配置</span>
+    <span class="keyword">if</span> (env.mock) {
+      config.baseURL = env.mockApi
+    } <span class="keyword">else</span> {
+      config.baseURL = env.baseApi
+    }
+    
+    <span class="keyword">return</span> config
+  },
+  (error: AxiosError) => {
+    <span class="keyword">return</span> Promise.reject(error)
+  }
+)
+
+<span class="comment">// 响应拦截器</span>
+instance.interceptors.response.use(
+  response => {
+    <span class="keyword">const</span> data: Result = response.data
+    hideLoading()
+    
+    <span class="comment">// Token过期处理</span>
+    <span class="keyword">if</span> (data.code === <span class="number">500001</span>) {
+      message.error(data.msg)
+      storage.remove(<span class="string">'token'</span>)
+      location.href = <span class="string">'/login?callback='</span> + encodeURIComponent(location.href)
+    } <span class="keyword">else if</span> (data.code != <span class="number">0</span>) {
+      message.error(data.msg)
+      <span class="keyword">return</span> Promise.reject(data)
+    }
+    
+    <span class="keyword">return</span> data.data <span class="keyword">as never</span>
+  },
+  error => {
+    hideLoading()
+    message.error(error.message)
+    <span class="keyword">return</span> Promise.reject(error.message)
+  }
+)</code></pre>
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 深入学习</div>
+                    <p>Request封装详细分析：<a href="../guides/04-loading/request-封装分析.md">阅读源码解析</a></p>
+                </div>
+
+                <h2>5.2 API接口管理</h2>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-title">src/api/index.ts - 接口统一管理</span>
+                        <span class="code-lang">typescript</span>
+                    </div>
+                    <pre><code><span class="keyword">import</span> request <span class="keyword">from</span> <span class="string">'@/utils/request'</span>
+<span class="keyword">import</span> { Login, User, Dept, OrderType } <span class="keyword">from</span> <span class="string">'../types/api'</span>
+
+<span class="keyword">export default</span> {
+  <span class="comment">// 登录</span>
+  login(params: Login.params) {
+    <span class="keyword">return</span> request.post&lt;<span class="class-name">string</span>&gt;(<span class="string">'/users/login'</span>, params)
+  },
+  
+  <span class="comment">// 获取用户信息</span>
+  getUserInfo() {
+    <span class="keyword">return</span> request.get&lt;<span class="class-name">User.UserItem</span>&gt;(<span class="string">'/users/getUserInfo'</span>)
+  },
+  
+  <span class="comment">// 获取用户列表</span>
+  getUserList(params?: User.Params) {
+    <span class="keyword">return</span> request.get&lt;<span class="class-name">ResultData</span>&lt;<span class="class-name">User.UserItem</span>&gt;&gt;(<span class="string">'/users/list'</span>, params)
+  },
+  
+  <span class="comment">// 创建用户</span>
+  userCreate(params: User.CreateParams) {
+    <span class="keyword">return</span> request.post(<span class="string">'/users/create'</span>, params)
+  }
+}</code></pre>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter4')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter6')">下一章: 登录认证 →</button>
+                </div>
+            </section>
+
+            <!-- 更多章节按照相同模式继续... -->
+            <!-- 为了演示，这里简要展示后续章节结构 -->
+            
+            <section id="chapter6" class="content-section">
+                <div class="breadcrumb">首页 > <span>第六章: 登录认证系统</span></div>
+                <h1>第六章: 登录认证系统</h1>
+                <h2>6.1 登录表单实现</h2>
+                <h2>6.2 Token存储与管理</h2>
+                <h2>6.3 路由守卫实现</h2>
+                <h2>6.4 自动登录与跳转</h2>
+                <div class="info-box tip">
+                    <p>登录安全方案详解：<a href="../guides/06-security/前端登录安全方案.md">阅读文档</a></p>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter5')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter7')">下一章: UI组件 →</button>
+                </div>
+            </section>
+
+            <section id="chapter7" class="content-section">
+                <div class="breadcrumb">首页 > <span>第七章: UI组件库与主题</span></div>
+                <h1>第七章: UI组件库与主题</h1>
+                <h2>7.1 Ant Design集成</h2>
+                <h2>7.2 CSS Module样式隔离</h2>
+                <h2>7.3 主题定制</h2>
+                <h2>7.4 全局Loading与错误提示</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter6')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter8')">下一章: 状态管理 →</button>
+                </div>
+            </section>
+
+            <section id="chapter8" class="content-section">
+                <div class="breadcrumb">首页 > <span>第八章: 状态管理</span></div>
+                <h1>第八章: 状态管理</h1>
+                <h2>8.1 Zustand基础</h2>
+                <h2>8.2 全局状态设计</h2>
+                <h2>8.3 持久化存储</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter7')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter9')">下一章: Dashboard →</button>
+                </div>
+            </section>
+
+            <section id="chapter9" class="content-section">
+                <div class="breadcrumb">首页 > <span>第九章: 工作台Dashboard</span></div>
+                <h1>第九章: 工作台Dashboard</h1>
+                <h2>9.1 数据可视化图表</h2>
+                <h2>9.2 ECharts集成</h2>
+                <h2>9.3 实时数据更新</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter8')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter10')">下一章: 用户管理 →</button>
+                </div>
+            </section>
+
+            <section id="chapter10" class="content-section">
+                <div class="breadcrumb">首页 > <span>第十章: 用户管理模块</span></div>
+                <h1>第十章: 用户管理模块</h1>
+                <h2>10.1 用户列表展示</h2>
+                <h2>10.2 分页功能实现</h2>
+                <h2>10.3 搜索与筛选</h2>
+                <h2>10.4 表单封装</h2>
+                <h2>10.5 弹框组件封装</h2>
+                <h2>10.6 CRUD操作完整实现</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter9')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter11')">下一章: 部门管理 →</button>
+                </div>
+            </section>
+
+            <section id="chapter11" class="content-section">
+                <div class="breadcrumb">首页 > <span>第十一章: 部门管理模块</span></div>
+                <h1>第十一章: 部门管理模块</h1>
+                <h2>11.1 树形数据结构</h2>
+                <h2>11.2 Tree组件使用</h2>
+                <h2>11.3 递归渲染</h2>
+                <h2>11.4 部门增删改查</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter10')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter12')">下一章: 菜单管理 →</button>
+                </div>
+            </section>
+
+            <section id="chapter12" class="content-section">
+                <div class="breadcrumb">首页 > <span>第十二章: 菜单管理模块</span></div>
+                <h1>第十二章: 菜单管理模块</h1>
+                <h2>12.1 菜单接口设计</h2>
+                <h2>12.2 动态菜单渲染</h2>
+                <h2>12.3 菜单权限控制</h2>
+                <h2>12.4 菜单模块优化</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter11')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter13')">下一章: RBAC权限 →</button>
+                </div>
+            </section>
+
+            <section id="chapter13" class="content-section">
+                <div class="breadcrumb">首页 > <span>第十三章: RBAC权限系统</span></div>
+                <h1>第十三章: RBAC权限系统</h1>
+                <h2>13.1 RBAC模型介绍</h2>
+                <h2>13.2 路由权限控制</h2>
+                <h2>13.3 按钮级权限</h2>
+                <h2>13.4 权限组件封装</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter12')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter14')">下一章: 订单与地图 →</button>
+                </div>
+            </section>
+
+            <section id="chapter14" class="content-section">
+                <div class="breadcrumb">首页 > <span>第十四章: 订单与地图</span></div>
+                <h1>第十四章: 订单与地图</h1>
+                <h2>14.1 订单列表实现</h2>
+                <h2>14.2 高德地图集成</h2>
+                <h2>14.3 轨迹回放</h2>
+                <h2>14.4 订单聚合</h2>
+                <h2>14.5 数据导出</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter13')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('chapter15')">下一章: 性能优化 →</button>
+                </div>
+            </section>
+
+            <section id="chapter15" class="content-section">
+                <div class="breadcrumb">首页 > <span>第十五章: 性能优化</span></div>
+                <h1>第十五章: 性能优化</h1>
+                <h2>15.1 路由懒加载</h2>
+                <h2>15.2 代码分割</h2>
+                <h2>15.3 组件记忆化</h2>
+                <h2>15.4 虚拟滚动</h2>
+                <h2>15.5 图片懒加载</h2>
+                <h2>15.6 主题定制优化</h2>
+                <h2>15.7 课程总结</h2>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateTo('chapter14')">← 上一章</button>
+                    <button class="btn btn-primary" onclick="navigateTo('intro')">回到首页 →</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Navigation handling
+        function navigateTo(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+            
+            window.scrollTo(0, 0);
+            updateProgress();
+        }
+
+        // Click navigation for sidebar links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.getAttribute('data-section');
+                navigateTo(sectionId);
+            });
+        });
+
+        // Progress bar
+        function updateProgress() {
+            const sections = document.querySelectorAll('.content-section');
+            const currentSection = document.querySelector('.content-section.active');
+            const currentIndex = Array.from(sections).indexOf(currentSection);
+            const progress = ((currentIndex + 1) / sections.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
